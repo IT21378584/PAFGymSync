@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400">
+  <defs>
+    <!-- Accent color gradient -->
+    <linearGradient id="heroAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#E63946;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#C81E2B;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Secondary accent gradient -->
+    <linearGradient id="heroAccent2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FF9F1C;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F87171;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Text gradient -->
+    <linearGradient id="heroTextGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E0E0E0;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Glow filter -->
+    <filter id="heroGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    
+    <!-- Text shadow -->
+    <filter id="heroTextShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+
+    <!-- Heart rate animation path -->
+    <path id="heartratePath" d="M0,50 Q25,50 37.5,25 T75,50 T112.5,25 T150,50 T187.5,25 T225,50 T262.5,25 T300,50" fill="none" stroke="none" />
+    
+    <!-- Clip path for progress indicators -->
+    <clipPath id="progressClip">
+      <rect x="100" y="300" width="1000" height="20" rx="10" />
+    </clipPath>
+  </defs>
+  
+  <!-- Decorative hexagon pattern -->
+  <g opacity="0.15">
+    <path d="M100,150 L150,125 L200,150 L200,200 L150,225 L100,200 Z" fill="#471D1D" />
+    <path d="M220,100 L270,75 L320,100 L320,150 L270,175 L220,150 Z" fill="#471D1D" />
+    <path d="M900,150 L950,125 L1000,150 L1000,200 L950,225 L900,200 Z" fill="#471D1D" />
+    <path d="M820,80 L870,55 L920,80 L920,130 L870,155 L820,130 Z" fill="#471D1D" />
+  </g>
+  
+  <!-- Animated pulse graph -->
+  <g transform="translate(450, 150)">
+    <path d="M0,50 Q25,50 37.5,25 T75,50 T112.5,25 T150,50 T187.5,25 T225,50 T262.5,25 T300,50" 
+          stroke="#E63946" stroke-width="4" fill="none" stroke-linecap="round">
+      <animate attributeName="stroke-dasharray" values="0,1000;600,0" dur="3s" repeatCount="indefinite" />
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite" />
+    </path>
+  </g>
+  
+  <!-- Rotating fitness icons -->
+  <g transform="translate(200, 150)" filter="url(#heroGlow)">
+    <!-- Dumbbell icon -->
+    <g>
+      <animateTransform attributeName="transform" attributeType="XML" type="rotate"
+                      from="0 0 0" to="360 0 0" dur="15s" repeatCount="indefinite" />
+      <circle cx="-40" cy="0" r="15" fill="url(#heroAccent)" />
+      <circle cx="40" cy="0" r="15" fill="url(#heroAccent)" />
+      <rect x="-40" y="-5" width="80" height="10" fill="#471D1D" />
+    </g>
+  </g>
+  
+  <!-- Animated stopwatch -->
+  <g transform="translate(1000, 150)" filter="url(#heroGlow)">
+    <circle cx="0" cy="0" r="50" fill="none" stroke="#471D1D" stroke-width="4" />
+    <circle cx="0" cy="0" r="45" fill="none" stroke="url(#heroAccent2)" stroke-width="2" stroke-dasharray="280, 360">
+      <animate attributeName="stroke-dasharray" values="10,300;280,30" dur="5s" repeatCount="indefinite" />
+    </circle>
+    <!-- Clock hands -->
+    <line x1="0" y1="0" x2="0" y2="-30" stroke="#471D1D" stroke-width="3" stroke-linecap="round">
+      <animateTransform attributeName="transform" attributeType="XML" type="rotate"
+                      from="0 0 0" to="360 0 0" dur="10s" repeatCount="indefinite" />
+    </line>
+    <line x1="0" y1="0" x2="20" y2="0" stroke="#471D1D" stroke-width="3" stroke-linecap="round">
+      <animateTransform attributeName="transform" attributeType="XML" type="rotate"
+                      from="0 0 0" to="360 0 0" dur="60s" repeatCount="indefinite" />
+    </line>
+    <circle cx="0" cy="0" r="5" fill="#471D1D" />
+  </g>
+  
+  <!-- Animated progress bars -->
+  <g>
+    <!-- Progress bar background -->
+    <rect x="100" y="300" width="1000" height="20" rx="10" fill="#471D1D" opacity="0.2" />
+    
+    <!-- Progress indicators -->
+    <rect x="100" y="300" width="1000" height="20" rx="10" fill="url(#heroAccent)" clip-path="url(#progressClip)">
+      <animate attributeName="width" values="0;1000;0" dur="15s" repeatCount="indefinite" />
+    </rect>
+    
+    <rect x="100" y="330" width="1000" height="20" rx="10" fill="#471D1D" opacity="0.2" />
+    <rect x="100" y="330" width="1000" height="20" rx="10" fill="url(#heroAccent2)" clip-path="url(#progressClip)">
+      <animate attributeName="width" values="0;700;0" dur="10s" repeatCount="indefinite" />
+    </rect>
+  </g>
+  
+  <!-- Main Hero Text -->
+  <text x="600" y="100" font-family="Arial, sans-serif" font-size="48" font-weight="bold" text-anchor="middle" fill="#471D1D" filter="url(#heroTextShadow)">
+    TRANSFORM YOUR FITNESS
+  </text>
+  
+  <!-- Tagline with typewriter effect -->
+  <text x="600" y="240" font-family="Arial, sans-serif" font-size="24" text-anchor="middle" fill="#471D1D">
+    <tspan>SYNC. TRAIN. ACHIEVE.</tspan>
+    <animate attributeName="opacity" values="0;1" dur="2s" begin="0s" fill="freeze" />
+  </text>
+</svg>
