@@ -171,3 +171,176 @@ const CreateSkillShareModal = () => {
       </>
     );
   };
+// Custom drop zone instead of using Ant's Dragger
+const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (uploadingMedia || mediaFiles.length >= 3) return;
+    
+    const files = Array.from(e.dataTransfer.files);
+    
+    // Check if adding these files would exceed the limit
+    if (mediaFiles.length + files.length > 3) {
+      alert(`You can only upload up to 3 files in total. You've dropped ${files.length} files but can only add ${3 - mediaFiles.length} more.`);
+      return;
+    }
+    
+    setUploadingMedia(true);
+    
+    try {
+      // Process all files in parallel
+      const uploadPromises = files.map(async (file) => {
+        // Check if file is image or video
+        if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+          alert(`File "${file.name}" is not an image or video.`);
+          return null;
+        }
+        
+        const fileType = file.type.split("/")[0];
+        
+        // Validate video duration if it's a video
+        if (fileType === "video") {
+          const isValid = await validateVideoDuration(file);
+          if (!isValid) {
+            alert(`Video "${file.name}" must be 30 seconds or less`);
+            return null;
+          }
+        }
+        
+        const url = await uploader.uploadFile(file, "posts");
+        
+        return {
+          uid: Date.now() + Math.random().toString(36).substring(2, 9),
+          url: url,
+          type: fileType,
+          name: file.name
+        };
+      });
+      
+      const results = await Promise.all(uploadPromises);
+      const validResults = results.filter(result => result !== null);
+      
+      setMediaFiles(prev => [...prev, ...validResults]);
+    } catch (error) {
+      console.error("Error uploading files:", error);
+    } finally {
+      setUploadingMedia(false);
+    }
+  };
+
+  return (
+    <Modal
+      title={<Title level={4} style={{ color: themeColors.textPrimary }}>Share Your Skills</Title>}
+      open={snap.createSkillShareOpened}
+      footer={null}
+      onCancel={() => {
+        state.createSkillShareOpened = false;
+      }}
+      width={550}
+      centered
+      destroyOnClose
+    >
+      <Form form={form} layout="vertical" onFinish={handleSubmit}>
+        <Form.Item
+          name="mealDetails"
+          label="Descriptions"
+          rules={[{ required: true, message: "Please enter Descriptions" }]}
+        >
+          <Input.TextArea 
+            style={{ borderRadius: 8, borderColor: themeColors.border }}
+            placeholder="Share details about your skills"
+            rows={4}
+          />
+        </Form.Item>
+        
+        {mediaFiles.length > 0 && renderMediaPreview()}
+        
+        {uploadingMedia && <p style={{ color: themeColors.secondary }}>Media is uploading, please wait...</p>}
+        
+        <Form.Item
+          label="Upload Media (up to 3 photos or videos, videos max 30 sec)"
+          rules={[{ required: mediaFiles.length === 0, message: "Please upload at least one media file" }]}
+        >
+          <div 
+            style={{ 
+              border: `2px dashed ${themeColors.border}`, 
+              borderRadius: '8px', 
+              padding: '20px', 
+              textAlign: 'center',
+              background: themeColors.background,
+              cursor: mediaFiles.length >= 3 ? 'not-allowed' : 'pointer'
+            }}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+          >
+            <p><InboxOutlined style={{ fontSize: '48px', color: themeColors.primary }} /></p>
+            <p style={{ margin: '8px 0', color: themeColors.textPrimary }}>
+              Click or drag files to this area to upload
+            </p>
+            <p style={{ color: themeColors.textSecondary }}>
+              {mediaFiles.length >= 3 ? 
+                "Maximum number of files reached" : 
+                `Select up to ${3 - mediaFiles.length} files at once. Supports images and videos.`}
+            </p>
+            <input
+              type="file"
+              multiple
+              accept="image/*,video/*"
+              onChange={handleFileInputChange}
+              disabled={mediaFiles.length >= 3 || uploadingMedia}
+              style={{ 
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                opacity: 0,
+                cursor: mediaFiles.length >= 3 ? 'not-allowed' : 'pointer'
+              }}
+            />
+          </div>
+        </Form.Item>
+        
+        <Form.Item style={{ marginBottom: 0, marginTop: 24 }}>
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <Button 
+              onClick={() => {
+                state.createSkillShareOpened = false;
+                form.resetFields();
+                setMediaFiles([]);
+              }}
+              style={{ 
+                borderRadius: 8,
+                marginRight: 12
+              }}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              loading={loading} 
+              disabled={mediaFiles.length === 0 || uploadingMedia}
+              style={{
+                background: themeColors.primary,
+                borderColor: themeColors.primary,
+                borderRadius: 8,
+                boxShadow: "0 2px 8px rgba(255, 107, 53, 0.2)"
+              }}
+            >
+              Share Skill
+            </Button>
+          </div>
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
+};
+
+export default CreateSkillShareModal;
