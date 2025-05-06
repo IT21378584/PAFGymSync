@@ -97,3 +97,56 @@ const AuthModal = ({ isOpen, onClose }) => {
   const handleSignUp = async (values) => {
     try {
       setIsLoading(true);
+      // Check if user exists
+      const exists = await UserService.checkIfUserExists(values.username);
+      if (exists) {
+        message.error("User already exists with this username");
+        return;
+      }
+      
+      // Register user
+      const response = await AuthService.register(
+        values.username,
+        values.password
+      );
+      
+      localStorage.setItem("userId", response.userId);
+      localStorage.setItem("accessToken", response.accessToken);
+      localStorage.setItem("refreshToken", response.refreshToken);
+
+      // Upload image if provided
+      let imageUrl = "";
+      if (values.file && values.file.length > 0) {
+        imageUrl = await uploader.uploadFile(
+          values.file[0].originFileObj,
+          "userImages"
+        );
+      }
+      
+      // Create profile
+      const body = {
+        userId: localStorage.getItem("userId"),
+        biography: values.biography,
+        fitnessGoals: values.fitnessGoals,
+        image: imageUrl,
+        email: values.email,
+      };
+      
+      await UserService.createProfile(body);
+      message.success(`Welcome ${values.username}! Your account has been created.`);
+      onClose();
+      signUpForm.resetFields();
+      window.location.reload();
+    } catch (err) {
+      message.error("Error creating your profile");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e && e.fileList;
+  };
