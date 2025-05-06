@@ -150,3 +150,276 @@ const AuthModal = ({ isOpen, onClose }) => {
     }
     return e && e.fileList;
   };
+ // Handle OAuth login redirects
+  const handleOAuthLogin = (provider) => {
+    const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+    const redirectUrl = `${baseUrl}/oauth2/authorization/${provider.toLowerCase()}`;
+    window.location.href = redirectUrl;
+  };
+
+  return (
+    <Modal
+      title={null}
+      open={isOpen}
+      footer={null}
+      onCancel={onClose}
+      width={450}
+      centered
+      bodyStyle={{ padding: 0 }}
+      style={modalStyle}
+    >
+      <Tabs
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        centered
+        style={tabsStyle}
+      >
+        <TabPane tab="Sign In" key="signin">
+          <div style={{ padding: "20px" }}>
+            <Form
+              name="signInForm"
+              form={signInForm}
+              layout="vertical"
+              onFinish={handleSignIn}
+              autoComplete="off"
+            >
+              <Form.Item
+                name="email"
+                rules={[{ required: true, message: "Please input your username or email!" }]}
+              >
+                <Input 
+                  prefix={<UserOutlined style={{ color: "#bfbfbf" }} />} 
+                  placeholder="Username or Email" 
+                  size="large"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="password"
+                rules={[{ required: true, message: "Please input your password!" }]}
+              >
+                <Input.Password 
+                  prefix={<LockOutlined style={{ color: "#bfbfbf" }} />} 
+                  placeholder="Password" 
+                  size="large"
+                />
+              </Form.Item>
+
+              <Form.Item>
+                <Button 
+                  type="primary" 
+                  htmlType="submit" 
+                  loading={isLoading}
+                  block
+                  size="large"
+                  style={{ marginTop: "8px" }}
+                >
+                  Sign In
+                </Button>
+              </Form.Item>
+              
+              <Divider plain>or continue with</Divider>
+              
+              <div style={buttonContainerStyle}>
+                <Button 
+                  icon={<GoogleOutlined />} 
+                  size="large"
+                  onClick={() => handleOAuthLogin("Google")}
+                  style={socialButtonStyle}
+                >
+                  Google
+                </Button>
+                <Button 
+                  icon={<GithubOutlined />} 
+                  size="large"
+                  onClick={() => handleOAuthLogin("GitHub")}
+                  style={socialButtonStyle}
+                >
+                  GitHub
+                </Button>
+              </div>
+              
+              <div style={footerTextStyle}>
+                <Text type="secondary">
+                  Don't have an account?{" "}
+                  <Button 
+                    type="link" 
+                    onClick={() => setActiveTab("signup")}
+                    style={{ padding: 0 }}
+                  >
+                    Sign up now
+                  </Button>
+                </Text>
+              </div>
+            </Form>
+          </div>
+        </TabPane>
+
+        <TabPane tab="Sign Up" key="signup">
+          <div style={{ padding: "20px" }}>
+            <Form
+              name="signUpForm"
+              form={signUpForm}
+              layout="vertical"
+              onFinish={handleSignUp}
+              autoComplete="off"
+              requiredMark={false}
+            >
+              <Form.Item
+                name="username"
+                rules={[{ required: true, message: "Please input your username!" }]}
+              >
+                <Input 
+                  prefix={<UserOutlined style={{ color: "#bfbfbf" }} />} 
+                  placeholder="Username" 
+                  size="large"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="email"
+                rules={[
+                  { required: true, message: "Please input your email!" },
+                  { type: "email", message: "Please enter a valid email!" }
+                ]}
+              >
+                <Input 
+                  prefix={<MailOutlined style={{ color: "#bfbfbf" }} />} 
+                  placeholder="Email" 
+                  size="large"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="password"
+                rules={[{ required: true, message: "Please input your password!" }]}
+              >
+                <Input.Password 
+                  prefix={<LockOutlined style={{ color: "#bfbfbf" }} />} 
+                  placeholder="Password" 
+                  size="large"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="confirm"
+                dependencies={["password"]}
+                hasFeedback
+                rules={[
+                  { required: true, message: "Please confirm your password!" },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value || getFieldValue("password") === value) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(new Error("The passwords don't match!"));
+                    },
+                  }),
+                ]}
+              >
+                <Input.Password 
+                  prefix={<LockOutlined style={{ color: "#bfbfbf" }} />} 
+                  placeholder="Confirm Password" 
+                  size="large"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="biography"
+                rules={[{ required: true, message: "Please input your biography!" }]}
+              >
+                <Input 
+                  prefix={<ProfileOutlined style={{ color: "#bfbfbf" }} />} 
+                  placeholder="Biography" 
+                  size="large"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="fitnessGoals"
+                rules={[{ required: true, message: "Please input your skill goals!" }]}
+              >
+                <Input 
+                  prefix={<AimOutlined style={{ color: "#bfbfbf" }} />} 
+                  placeholder="Skill Goals" 
+                  size="large"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="file"
+                valuePropName="fileList"
+                getValueFromEvent={normFile}
+              >
+                <Upload.Dragger 
+                  beforeUpload={() => false} 
+                  multiple={false}
+                  maxCount={1}
+                  listType="picture"
+                  style={{ borderRadius: "8px", padding: "16px 0" }}
+                >
+                  <p className="ant-upload-drag-icon">
+                    <InboxOutlined />
+                  </p>
+                  <p className="ant-upload-text">Profile picture (optional)</p>
+                  <p className="ant-upload-hint">
+                    Click or drag an image to this area
+                  </p>
+                </Upload.Dragger>
+              </Form.Item>
+
+              <Form.Item>
+                <Button 
+                  type="primary" 
+                  htmlType="submit" 
+                  loading={isLoading}
+                  block
+                  size="large"
+                  style={{ marginTop: "8px" }}
+                >
+                  Create Account
+                </Button>
+              </Form.Item>
+              
+              <Divider plain>or sign up with</Divider>
+              
+              <div style={buttonContainerStyle}>
+                <Button 
+                  icon={<GoogleOutlined />} 
+                  size="large"
+                  onClick={() => handleOAuthLogin("Google")}
+                  style={socialButtonStyle}
+                >
+                  Google
+                </Button>
+                <Button 
+                  icon={<GithubOutlined />} 
+                  size="large"
+                  onClick={() => handleOAuthLogin("GitHub")}
+                  style={socialButtonStyle}
+                >
+                  GitHub
+                </Button>
+              </div>
+              
+              <div style={footerTextStyle}>
+                <Text type="secondary">
+                  Already have an account?{" "}
+                  <Button 
+                    type="link" 
+                    onClick={() => setActiveTab("signin")}
+                    style={{ padding: 0 }}
+                  >
+                    Sign in
+                  </Button>
+                </Text>
+              </div>
+            </Form>
+          </div>
+        </TabPane>
+      </Tabs>
+    </Modal>
+  );
+};
+
+export default AuthModal;
