@@ -53,3 +53,47 @@ const AuthModal = ({ isOpen, onClose }) => {
   const [signInForm] = Form.useForm();
   const [signUpForm] = Form.useForm();
   const [isLoading, setIsLoading] = useState(false);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const accessToken = params.get("access_token");
+    const refreshToken = params.get("refresh_token");
+    const userId = params.get("user_id");
+    
+    if (accessToken && refreshToken && userId) {
+      // Store tokens in localStorage
+      localStorage.setItem("userId", userId);
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+      
+      // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      
+      // Show success message
+      message.success("Successfully signed in!");
+      
+      // Refresh the page
+      window.location.reload();
+    }
+  }, []);
+
+  const handleSignIn = async (values) => {
+    try {
+      setIsLoading(true);
+      const response = await AuthService.login(values.email, values.password);
+      localStorage.setItem("userId", response.userId);
+      localStorage.setItem("accessToken", response.accessToken);
+      localStorage.setItem("refreshToken", response.refreshToken);
+      message.success("Welcome back!");
+      onClose();
+      signInForm.resetFields();
+      window.location.reload();
+    } catch (err) {
+      message.error("Invalid username or password");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSignUp = async (values) => {
+    try {
+      setIsLoading(true);
