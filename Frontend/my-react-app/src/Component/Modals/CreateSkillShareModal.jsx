@@ -59,3 +59,115 @@ const CreateSkillShareModal = () => {
       setLoading(false);
     }
   };
+  // Use a custom file input instead of Ant's Upload component to avoid duplication issues
+  const handleFileInputChange = async (e) => {
+    const files = Array.from(e.target.files);
+    
+    if (files.length === 0) return;
+    
+    // Check if adding these files would exceed the limit
+    if (mediaFiles.length + files.length > 3) {
+      alert(`You can only upload up to 3 files in total. You've selected ${files.length} files but can only add ${3 - mediaFiles.length} more.`);
+      // Reset the file input
+      e.target.value = null;
+      return;
+    }
+    
+    setUploadingMedia(true);
+    
+    try {
+      // Process all files in parallel
+      const uploadPromises = files.map(async (file) => {
+        const fileType = file.type.split("/")[0];
+        
+        // Validate video duration if it's a video
+        if (fileType === "video") {
+          const isValid = await validateVideoDuration(file);
+          if (!isValid) {
+            alert(`Video "${file.name}" must be 30 seconds or less`);
+            return null;
+          }
+        }
+        
+        const url = await uploader.uploadFile(file, "posts");
+        
+        return {
+          uid: Date.now() + Math.random().toString(36).substring(2, 9),
+          url: url,
+          type: fileType,
+          name: file.name
+        };
+      });
+      
+      const results = await Promise.all(uploadPromises);
+      const validResults = results.filter(result => result !== null);
+      
+      setMediaFiles(prev => [...prev, ...validResults]);
+    } catch (error) {
+      console.error("Error uploading files:", error);
+    } finally {
+      setUploadingMedia(false);
+      // Reset the file input
+      e.target.value = null;
+    }
+  };
+
+  const validateVideoDuration = (file) => {
+    return new Promise((resolve) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      
+      video.onloadedmetadata = function() {
+        window.URL.revokeObjectURL(video.src);
+        resolve(video.duration <= 30);
+      };
+      
+      video.src = URL.createObjectURL(file);
+    });
+  };
+
+  const removeMediaFile = (uid) => {
+    setMediaFiles(prev => prev.filter(file => file.uid !== uid));
+  };
+
+  const renderMediaPreview = () => {
+    return (
+      <>
+        <p style={{ color: themeColors.textPrimary }}>Media Files ({mediaFiles.length}/3):</p>
+        <Row gutter={[16, 16]}>
+          {mediaFiles.map(file => (
+            <Col key={file.uid} span={8}>
+              <div style={{ position: 'relative' }}>
+                {file.type === 'image' ? (
+                  <img 
+                    src={file.url} 
+                    alt={file.name}
+                    style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 8 }}
+                  />
+                ) : (
+                  <video 
+                    src={file.url} 
+                    controls
+                    style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 8 }}
+                  />
+                )}
+                <Button 
+                  type="text" 
+                  danger 
+                  icon={<DeleteOutlined />} 
+                  onClick={() => removeMediaFile(file.uid)}
+                  style={{ 
+                    position: 'absolute', 
+                    top: 0, 
+                    right: 0,
+                    background: 'rgba(255, 255, 255, 0.7)',
+                    borderRadius: 8
+                  }}
+                />
+              </div>
+            </Col>
+          ))}
+        </Row>
+      </>
+    );
+  };
