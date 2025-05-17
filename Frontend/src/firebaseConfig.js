@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
-const firebaseConfig = {
+const firebaseConfig = { 
   apiKey: "AIzaSyCDP_N9fYjlJnshuc4jckOP5IMo0HSrbmo",
   authDomain: "pafmain-a0be6.firebaseapp.com",
   projectId: "pafmain-a0be6",
