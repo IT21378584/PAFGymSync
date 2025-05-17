@@ -47,7 +47,7 @@ class AuthService {
     }
   }
 
-  // Login with Google OAuth2
+  // Login with Google OAuth2 authentication
   loginWithGoogle() {
     // Save current page URL to return after authentication
     localStorage.setItem("redirectUrl", window.location.href);
