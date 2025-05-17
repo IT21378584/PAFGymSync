@@ -13,7 +13,9 @@ import CreaetSkillShareBox from "./SkillShareBox";
 import SkillShareCard from "./SkillShareCard";
 import FriendsSection from "./FriendsSection";
 import NotificationsDropdown from "./NotificationsDropdown";
-import { Tabs, Avatar, Row, Col, Spin, Badge } from "antd";
+import { Tabs, Avatar, Row, Col, Spin, Badge } from "and";
+
+//this is the center section component
 
 const CenterSection = () => {
   const snap = useSnapshot(state);
